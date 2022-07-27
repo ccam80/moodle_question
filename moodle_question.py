@@ -39,9 +39,12 @@ How to use:
     moodle are:
 
     get_node_voltages():
-        returns a dictionary of {node number: node voltage equation}
-        node voltage equations are saved as strings in moodle readable format
-        saves dictionary to self.node_voltages for later use
+       Save and return a dict, keyed by Vn where n representsa node number
+       of moodle-readable node voltages at primary nodes.
+
+    get_component_currents():
+        Save and return a dict, keyed by component name, of moodle-readable
+        component currents.
 
     get_R_eq(load_component):
         return thevenin/norton equivalent resistance from the perspective of
@@ -227,26 +230,3 @@ class moodle_question(Circuit):
             draw_nodes="primary",
             label_nodes="primary",
         )
-
-
-close('all')
-
-
-# for i, netlist in enumerate(test_list):
-#     cct = moodle_question(netlist)
-#     circuit_name = names_list[i]
-
-#     print("**********************" + circuit_name + "*************************")
-#     cct.print_node_voltages()
-#     cct.print_component_currents()
-#     # cct.print_R_eq()
-#     cct.export_schematic(circuit_name)
-
-circuit_name = "Thevenin 1"
-cct = moodle_question(thevenin_1_nl)
-cct.print_node_voltages()
-cct.print_component_currents()
-cct.print_R_eq()
-cct.print_nort_i()
-cct.print_thev_v()
-cct.export_schematic(circuit_name)

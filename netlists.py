@@ -133,6 +133,27 @@ thevenin_1_nl = """
                 ; node_spacing=4, scale=1
                 """
 
+reactive_test = """
+                W 0 0_1; right
+                W 0_1 0_2; right
+                V1 1_0 0 ac; down
+                R1 1_0 2 {R1}; right
+                C2 0_1 2 {C2};up
+                W 2 2_1; right
+                W 2_1 2_2; right
+                R3 0_2 2_1; up
+                R4 0_2 3; right
+                L1 3 2_2; up
+                ; node_spacing=4, scale=1
+                """
+
+stack_test = """
+            W 0 0_1; right
+            R1 0_1 1 {R1}; up
+            R2 1 1_1 {R2}; up
+            W 1_1 0; up
+            """
+
 names_list = ["Norton_1",
               "Mesh_1",
               "Mesh_2",
