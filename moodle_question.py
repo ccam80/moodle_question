@@ -3,9 +3,12 @@ from lcapy import Circuit
 from sympy.printing.c import ccode
 from os import mkdir
 from os.path import isdir
+from netlists import *
+from matplotlib.pyplot import close
+from varname import nameof
 
 """
-Created on Wed Jul 20 10:11:35 2022
+Created on Wed Jul 20 10:20:35 2022
 
 Helper class which wraps a bunch of lcapy and sympy functions, designed to
 output symbolic equations and schematics for copy/paste to the moodle "Formulas"
@@ -104,13 +107,17 @@ Example code:
 
 
 class moodle_question(Circuit):
-    def __init__(self, netlist, figpath="./schematics/"):
+    def __init__(self,
+                 netlist,
+                 name="example",
+                 figpath="./schematics/"):
         super(moodle_question, self).__init__(netlist)
         self.node_voltages = {}
         self.mesh_currents = {}
         self.R_eq = 0
         self.Thevenin_eq_v = 0
         self.Norton_eq_i = 0
+        self.component_currents = {}
 
         self.figpath = figpath
 
@@ -144,6 +151,28 @@ class moodle_question(Circuit):
         for node, voltage in self.node_voltages.items():
             print("V" + node + "= " + voltage + ";")
 
+    def get_component_currents(self):
+        """Save and return a dict, keyed by component name, of moodle-readable
+        component currents. """
+
+        for component in self.cpts:
+            if any(comp in component for comp in ['W', 'A', 'P', 'X']):
+                pass
+            else:
+                raw_current = self[component].i
+                c_current = ccode(raw_current).splitlines()[-1] + ";"
+                self.component_currents[component] = c_current
+
+        return self.component_currents
+
+    def print_component_currents(self):
+        """Get (if necessary) and print to console moodle-readable current
+        equation strings for each component. """
+        if self.component_currents == {}:
+            self.get_component_currents()
+        for component, current in self.component_currents.items():
+            print("I_" + component + " = " + current)
+
     def get_R_eq(self, load_component="P1"):
         """Get, save, and return the equation of the thevenin/norton equivalent
         resistance from the perspective of load_component"""
@@ -157,7 +186,7 @@ class moodle_question(Circuit):
         if self.R_eq == 0:
             self.get_R_eq(load_component)
 
-        print("R_eq: " + self.R_eq + ";")
+        print("R_eq= " + self.R_eq + ";")
 
         return self.R_eq
 
@@ -198,3 +227,26 @@ class moodle_question(Circuit):
             draw_nodes="primary",
             label_nodes="primary",
         )
+
+
+close('all')
+
+
+# for i, netlist in enumerate(test_list):
+#     cct = moodle_question(netlist)
+#     circuit_name = names_list[i]
+
+#     print("**********************" + circuit_name + "*************************")
+#     cct.print_node_voltages()
+#     cct.print_component_currents()
+#     # cct.print_R_eq()
+#     cct.export_schematic(circuit_name)
+
+circuit_name = "Thevenin 1"
+cct = moodle_question(thevenin_1_nl)
+cct.print_node_voltages()
+cct.print_component_currents()
+cct.print_R_eq()
+cct.print_nort_i()
+cct.print_thev_v()
+cct.export_schematic(circuit_name)
